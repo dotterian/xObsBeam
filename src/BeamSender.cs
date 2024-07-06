@@ -24,6 +24,8 @@ public class BeamSender(Beam.SenderTypes senderType)
   readonly ConcurrentDictionary<string, BeamSenderClient> _clients = new();
   readonly ConcurrentDictionary<string, NamedPipeServerStream> _pipeServers = new();
 
+
+  UpnpMapper _upnpMapper = new();
   TcpListener _listener = new(IPAddress.Loopback, DefaultPort);
   string _pipeName = "";
   CancellationTokenSource _listenCancellationSource = new();
@@ -293,6 +295,27 @@ public class BeamSender(Beam.SenderTypes senderType)
           return;
         }
       }
+
+      try
+      {
+        await _upnpMapper.Map(port);
+      }
+      catch
+      {
+        try { _listener.Stop(); } catch { } // listening on the TCP port worked if we got here, so try to stop it again to try the next port
+        if (automaticPort)
+        {
+          failCount++;
+          Module.Log($"Failed to start UDP listener for {identifier} on {localAddr}:{port}, attempt {failCount} of 10.", ObsLogLevel.Debug);
+          continue;
+        }
+        else
+        {
+          Module.Log($"Failed to start UDP listener for {identifier} on {localAddr}:{port}, try configuring a different port or use a different interface.", ObsLogLevel.Error);
+          return;
+        }
+      }
+
       try
       {
         _discoveryServer.StartServer(localAddr, port, _senderType, identifier);
@@ -300,6 +323,7 @@ public class BeamSender(Beam.SenderTypes senderType)
       }
       catch (SocketException)
       {
+        try { _upnpMapper.Free(); } catch { }
         try { _listener.Stop(); } catch { } // listening on the TCP port worked if we got here, so try to stop it again to try the next port
         _discoveryServer.StopServer();
         if (automaticPort)
@@ -434,6 +458,7 @@ public class BeamSender(Beam.SenderTypes senderType)
         client.Disconnect(); // this will block for up to 1000 ms per client to try and get a clean disconnect
       _audioPlanes = 0;
       _discoveryServer.StopServer();
+      _upnpMapper.Free();
 
       Module.Log($"Stopped BeamSender.", ObsLogLevel.Debug);
     }
