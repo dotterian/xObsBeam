@@ -157,6 +157,7 @@ This plugin uses the following libraries/technologies:
 - [QOIR](https://github.com/nigeltao/qoir) - optionally loaded from an external dynamic library, more details on the Beam implementation of it [here](https://github.com/YorVeX/xObsBeam/tree/main/lib/QoirLib)
 - [Density](https://github.com/k0dai/density) - optionally loaded from an external dynamic library, more details on the Beam implementation of it [here](https://github.com/YorVeX/xObsBeam/tree/main/lib/Density)
 - [libjpeg-turbo](https://github.com/libjpeg-turbo/libjpeg-turbo) - optionally loaded from an external dynamic library, more details on the Beam implementation of it [here](github.com/YorVeX/xObsBeam/tree/main/lib/libjpeg-turbo)
+- [SharpOpenNat](https://giters.com/JeremyAnsel/SharpOpenNat) - allows to enable port mapping for the senders to avoid manual firewall configurations where possible.
 
 Compression is simply applied to each frame separately, QOI, QOIR, QOY and JPEG are image codecs and not video codecs anyway and LZ4 and Density not even tailored for images.
 
