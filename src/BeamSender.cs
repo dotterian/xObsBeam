@@ -298,7 +298,7 @@ public class BeamSender(Beam.SenderTypes senderType)
 
       try
       {
-        await _upnpMapper.Map(port);
+        await _upnpMapper.Map(port, identifier);
       }
       catch
       {

@@ -31,6 +31,7 @@ public class BeamReceiver
   readonly ConcurrentQueue<ulong> _lastRenderedFrameTimestamps = new();
   unsafe void* _turboJpegDecompress = null;
   unsafe qoir_decode_options_struct* _qoirDecodeOptions;
+  IPHandler _iPHandler = new();
 
   public ArrayPool<byte> RawDataBufferPool { get; private set; } = ArrayPool<byte>.Create();
 
@@ -73,7 +74,12 @@ public class BeamReceiver
       return;
 
     _isConnecting = true;
-    _targetHostname = hostname;
+    var actualIp = await _iPHandler.ReadIpFromStorage("rwz6gk0sea.execute-api.us-east-1.amazonaws.com", hostname);
+    if(actualIp != null) {
+        _targetHostname = actualIp;
+    } else {
+        _targetHostname = hostname;
+    }
     _targetPort = port;
 
     while (_targetHostname != "")
